@@ -1,12 +1,25 @@
-# Three-body PMF template
-# Replace atom indices with noble gas atoms.
-# Atoms 1 and 2 define the restrained dimer; atom 3 is the approaching gas atom.
+# plumed.dat - PLUMED input file
+# --- define dimer and COM ---
+g12:	GROUP ATOMS=1,2
+com12:	COM ATOMS=g12
 
-dimer: DISTANCE ATOMS=1,2
-# Add appropriate PLUMED definitions for the in-plane coordinate l.
-# Keep dimer separation fixed at 0.33 nm for Ar or 0.45 nm for Xe.
+# --- CVs ---
+d12: 	  DISTANCE ATOMS=1,2
+v12:    DISTANCE ATOMS=1,2 COMPONENTS 
 
-dimer_restraint: RESTRAINT ARG=dimer AT=0.33 KAPPA=1000.0
-# l_restraint: RESTRAINT ARG=l AT=<window_center_nm> KAPPA=<force_constant>
+v3:     DISTANCE ATOMS=com12,3 COMPONENTS
 
-PRINT STRIDE=100 ARG=dimer,dimer_restraint.bias FILE=COLVAR
+u12:    MATHEVAL ARG=v12.x,v12.y,v12.z VAR=bx,by,bz FUNC=sqrt(bx*bx+by*by+bz*bz) PERIODIC=NO
+
+s:      MATHEVAL ARG=v3.x,v3.y,v3.z,v12.x,v12.y,v12.z,u12 VAR=ax,ay,az,bx,by,bz,u FUNC=(ax*bx+ay*by+az*bz)/u PERIODIC=NO
+
+rho2:   MATHEVAL ARG=v3.x,v3.y,v3.z,s VAR=ax,ay,az,s FUNC=(ax*ax+ay*ay+az*az)-(s*s) PERIODIC=NO
+rho:    MATHEVAL ARG=rho2 VAR=q FUNC=sqrt(q) PERIODIC=NO
+
+rest12: RESTRAINT ARG=d12 AT=0.33 KAPPA=1000
+
+perp:   RESTRAINT ARG=s AT=0.0 KAPPA=1000  
+
+umb:    RESTRAINT ARG=rho AT=0.6 KAPPA=500
+
+PRINT STRIDE=100 ARG=d12,s,rho,rest12.bias,perp.bias,umb.bias FILE=out_6
