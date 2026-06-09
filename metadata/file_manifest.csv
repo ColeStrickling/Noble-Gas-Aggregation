@@ -1,4 +1,0 @@
-relative_path,description,source_or_generation_step,included_in_github,external_archive_or_note
-force_fields/rim_parameters_manuscript_units.csv,Final RIM parameters in manuscript units,Manuscript Tables 1-2,yes,
-data/processed/,Processed PMF/RDF/MSD data used for figures,Analysis scripts,TODO,Add files
-raw trajectories,Full production trajectories,LAMMPS production runs,no,Archive externally or use Git LFS

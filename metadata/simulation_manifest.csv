@@ -1,3 +1,0 @@
-system,salt,gas,calculation_type,body_order,ensemble,temperature_K,pressure_bar,n_ion_pairs,n_gas_atoms,n_replicates,trajectory_length_ns,input_directory,output_directory,notes
-KCl-Ar,KCl,Ar,umbrella_sampling,two_body,NPT+NVT,1173,1,864,2,3,3 ns NPT + 6 ns NVT per window,inputs/lammps/umbrella_sampling,results/pmfs,Example row; edit paths
-LiCl-Xe,LiCl,Xe,diffusion,NA,NVT,1173,NA,864,2,8,20,inputs/lammps/diffusion,results/diffusion,Example row; edit paths
