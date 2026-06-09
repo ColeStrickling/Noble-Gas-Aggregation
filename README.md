@@ -4,7 +4,7 @@ This repository contains analysis scripts, example input files, force-field para
 
 > Cole Strickling, Yong Zhang, Luke Gibson, Vyacheslav Bryantsev, and Edward J. Maginn,  
 > **Noble Gas Aggregation and Dynamics in Molten Alkali Chloride Salts**.  
-> Manuscript in preparation / submitted. 
+> Manuscript in preparation.
 
 ## Repository contents
 
