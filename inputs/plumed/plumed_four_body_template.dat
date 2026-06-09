@@ -1,9 +1,50 @@
-# Four-body PMF template
-# Replace atom indices with noble gas atoms.
-# Atoms 1,2,3 define the restrained triangle; atom 4 approaches along the normal.
+WHOLEMOLECULES STRIDE=1 ENTITY0=1,2,3,4
 
-# Add PLUMED definitions for triangle restraints, axial coordinate s, and cylindrical restraint.
-# Triangle side length: 0.33 nm for Ar or 0.45 nm for Xe.
-# Umbrella window centers: Ar = 0.3, 0.6, 0.9, 1.4 nm; Xe = 0.4, 0.6, 0.9, 1.4 nm.
+g123: GROUP ATOMS=1,2,3
+com3: COM ATOMS=g123
 
-PRINT STRIDE=100 FILE=COLVAR
+# --- Lock equilateral triangle ---
+d12: DISTANCE ATOMS=1,2 NOPBC
+d23: DISTANCE ATOMS=2,3 NOPBC
+d31: DISTANCE ATOMS=3,1 NOPBC
+
+a123: ANGLE ATOMS=1,2,3
+a231: ANGLE ATOMS=2,3,1
+a312: ANGLE ATOMS=3,1,2
+
+tri12: RESTRAINT ARG=d12 AT=0.33 KAPPA=20000
+tri23: RESTRAINT ARG=d23 AT=0.33 KAPPA=20000
+tri31: RESTRAINT ARG=d31 AT=0.33 KAPPA=20000
+
+ang123: RESTRAINT ARG=a123 AT=1.0471975512 KAPPA=8000
+ang231: RESTRAINT ARG=a231 AT=1.0471975512 KAPPA=8000
+ang312: RESTRAINT ARG=a312 AT=1.0471975512 KAPPA=8000
+
+# --- Normal coordinate setup ---
+v1: DISTANCE ATOMS=com3,1 COMPONENTS NOPBC
+v2: DISTANCE ATOMS=com3,2 COMPONENTS NOPBC
+v4: DISTANCE ATOMS=com3,4 COMPONENTS NOPBC
+
+nx:   MATHEVAL ARG=v1.y,v1.z,v2.y,v2.z VAR=a,b,c,d FUNC=a*d-b*c PERIODIC=NO
+ny:   MATHEVAL ARG=v1.z,v1.x,v2.z,v2.x VAR=a,b,c,d FUNC=a*d-b*c PERIODIC=NO
+nz:   MATHEVAL ARG=v1.x,v1.y,v2.x,v2.y VAR=a,b,c,d FUNC=a*d-b*c PERIODIC=NO
+nmag: MATHEVAL ARG=nx,ny,nz VAR=x,y,z FUNC=sqrt(x*x+y*y+z*z) PERIODIC=NO
+nnx:  MATHEVAL ARG=nx,nmag VAR=x,m FUNC=x/max(m,1e-12) PERIODIC=NO
+nny:  MATHEVAL ARG=ny,nmag VAR=y,m FUNC=y/max(m,1e-12) PERIODIC=NO
+nnz:  MATHEVAL ARG=nz,nmag VAR=z,m FUNC=z/max(m,1e-12) PERIODIC=NO
+
+s:    MATHEVAL ARG=v4.x,v4.y,v4.z,nnx,nny,nnz VAR=ax,ay,az,nx,ny,nz FUNC=ax*nx+ay*ny+az*nz PERIODIC=NO
+sabs: MATHEVAL ARG=s VAR=x FUNC=abs(x) PERIODIC=NO
+
+v4mag2: MATHEVAL ARG=v4.x,v4.y,v4.z VAR=ax,ay,az FUNC=ax*ax+ay*ay+az*az PERIODIC=NO
+rho2:   MATHEVAL ARG=v4mag2,s VAR=q,s FUNC=max(q-s*s,0.0) PERIODIC=NO
+rho:    MATHEVAL ARG=rho2 VAR=q FUNC=sqrt(q) PERIODIC=NO
+
+# Tube wall 
+tube: UPPER_WALLS ARG=rho AT=0.04 KAPPA=20000
+
+# --- Umbrella window ---
+umb: RESTRAINT ARG=sabs AT=0.60 KAPPA=500
+
+# Output
+PRINT STRIDE=100 ARG=sabs,rho,d12,d23,d31,a123,a231,a312,umb.bias,tube.bias FILE=out_6
