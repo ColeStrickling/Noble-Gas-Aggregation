@@ -9,5 +9,3 @@ Suggested workflows:
    Fits MSD data over a specified time interval and reports diffusion coefficients.
 
 
-
-Keep each script runnable from the command line and include example commands in this README.
