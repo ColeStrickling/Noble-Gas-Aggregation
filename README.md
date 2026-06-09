@@ -11,13 +11,9 @@ This repository contains analysis scripts, example input files, force-field para
 ```text
 .
 ├── analysis/              # Python scripts used for post-processing and figure generation
-├── data/                  # Raw/processed data and figure data tables
 ├── examples/              # Minimal runnable examples for key workflows
-├── figures/               # Generated figures or figure-generation notes
 ├── force_fields/          # Salt-salt, gas-gas, and salt-gas parameters
-├── inputs/                # LAMMPS, PLUMED, CP2K, ORCA, and WHAM input examples
-├── metadata/              # Simulation manifest and file manifest templates
-├── results/               # PMF, RDF, MSD, and diffusion output examples
+├── inputs/                # LAMMPS, PLUMED, CP2K, and ORCA input examples
 ├── CITATION.cff
 ├── environment.yml
 ├── requirements.txt
@@ -35,7 +31,7 @@ The work uses several simulation and analysis tools. Record the exact versions u
 - ORCA for gas-ion quantum mechanical interaction scans
 - Python for RDF, PMF, MSD, diffusion, and plotting analyses
 
-## High-level workflow
+## Workflow
 
 1. **Develop salt-gas interaction parameters**
    - Run ORCA gas-ion interaction scans for Ar-ion and Xe-ion pairs.
@@ -90,17 +86,6 @@ python analysis/diffusion/compute_diffusion_from_msd.py \
     --fit-start 6 \
     --fit-end 10
 ```
-
-## Notes on large files
-
-Full trajectories are usually too large for GitHub. For publication reproducibility, include:
-
-- input files needed to regenerate the trajectories,
-- processed PMF/RDF/MSD data used for figures and tables,
-- representative small trajectory or output snippets,
-- a manifest describing where the full raw data are archived, if applicable.
-
-Do not commit machine-specific scratch files, binary restart files, or large trajectories unless the repository is paired with Git LFS or an external data archive.
 
 ## Citation
 
