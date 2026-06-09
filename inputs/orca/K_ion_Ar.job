@@ -1,7 +1,5 @@
 #!/bin/bash
 
-#$ -M cstrick4@nd.edu
-#$ -m abe
 #$ -N K_Ar_eps_1_2
 
 module load orca 
