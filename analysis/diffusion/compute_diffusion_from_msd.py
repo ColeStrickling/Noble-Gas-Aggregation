@@ -1,51 +1,105 @@
 #!/usr/bin/env python3
-"""Fit MSD data and compute diffusion coefficients from the Einstein relation.
+"""
+Example diffusion analysis script.
 
-Expected input: whitespace- or comma-delimited table with columns including time and MSD.
-Supported MSD units: nm2 or A2. Time is assumed to be ns.
+This script reads one MSD file, fits the linear region, and computes a diffusion
+coefficient from the Einstein relation:
+
+    D = (1/6) d<|r(t)-r(0)|^2>/dt
+
+The input file is expected to have at least two whitespace-delimited columns:
+
+    time_ps   msd_A2
+
+Additional columns are allowed and ignored.
+
+Edit the USER SETTINGS section below for a different MSD file or fit window.
 """
 
-import argparse
+from pathlib import Path
+
 import numpy as np
+import pandas as pd
 
 
-def load_table(path: str) -> np.ndarray:
-    try:
-        return np.genfromtxt(path, names=True, comments="#", delimiter=None)
-    except Exception:
-        return np.genfromtxt(path, names=True, comments="#", delimiter=",")
+# =============================================================================
+# USER SETTINGS
+# =============================================================================
+
+INPUT_FILE = Path("examples/diffusion/msd_example.dat")
+OUTPUT_FILE = Path("results/diffusion/diffusion_example.csv")
+
+SPECIES_LABEL = "Ar"
+FIT_MIN_NS = 6.0
+FIT_MAX_NS = 10.0
+
+# =============================================================================
+# CONSTANTS
+# =============================================================================
+
+A2_PER_PS_TO_M2_PER_S = 1.0e-8
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--input", required=True)
-    parser.add_argument("--time-column", default="time_ns")
-    parser.add_argument("--msd-column", default="msd_nm2")
-    parser.add_argument("--fit-start", type=float, default=6.0)
-    parser.add_argument("--fit-end", type=float, default=10.0)
-    parser.add_argument("--msd-unit", choices=["nm2", "A2"], default="nm2")
-    args = parser.parse_args()
+def read_msd_file(path):
+    """Read time in ps and MSD in A^2."""
+    data = np.loadtxt(path)
 
-    data = load_table(args.input)
-    time = data[args.time_column]
-    msd = data[args.msd_column]
+    if data.ndim == 1:
+        data = data.reshape(1, -1)
 
-    mask = (time >= args.fit_start) & (time <= args.fit_end)
-    if mask.sum() < 2:
-        raise ValueError("Need at least two MSD points in fitting interval.")
+    if data.shape[1] < 2:
+        raise ValueError(f"{path} must contain at least two columns: time_ps msd_A2")
 
-    slope, intercept = np.polyfit(time[mask], msd[mask], 1)
+    time_ps = data[:, 0].astype(float)
+    msd_A2 = data[:, 1].astype(float)
 
-    # Convert slope to m^2/s.
-    # nm^2/ns = 1e-9 m^2/s; A^2/ns = 1e-11 m^2/s.
-    conversion = 1e-9 if args.msd_unit == "nm2" else 1e-11
-    D_m2_s = slope * conversion / 6.0
-    D_1e_minus_8 = D_m2_s / 1e-8
+    return time_ps, msd_A2
 
-    print(f"slope = {slope:.8g} {args.msd_unit}/ns")
-    print(f"D = {D_m2_s:.8e} m^2/s")
-    print(f"D = {D_1e_minus_8:.6f} x 10^-8 m^2/s")
-    print(f"fit interval = {args.fit_start:g} to {args.fit_end:g} ns")
+
+def fit_diffusion(time_ps, msd_A2):
+    """Fit MSD versus time and compute D."""
+    time_ns = time_ps / 1000.0
+    fit_mask = (time_ns >= FIT_MIN_NS) & (time_ns <= FIT_MAX_NS)
+
+    if np.count_nonzero(fit_mask) < 2:
+        raise ValueError(
+            f"The fit window {FIT_MIN_NS}-{FIT_MAX_NS} ns contains fewer than two points."
+        )
+
+    slope_A2_per_ps, intercept_A2 = np.polyfit(
+        time_ps[fit_mask],
+        msd_A2[fit_mask],
+        deg=1,
+    )
+
+    diffusion_m2_s = (slope_A2_per_ps / 6.0) * A2_PER_PS_TO_M2_PER_S
+
+    return {
+        "species": SPECIES_LABEL,
+        "input_file": str(INPUT_FILE),
+        "fit_min_ns": FIT_MIN_NS,
+        "fit_max_ns": FIT_MAX_NS,
+        "slope_A2_per_ps": slope_A2_per_ps,
+        "intercept_A2": intercept_A2,
+        "D_m2_s": diffusion_m2_s,
+        "D_1e8_m2_s": diffusion_m2_s / 1.0e-8,
+    }
+
+
+def main():
+    time_ps, msd_A2 = read_msd_file(INPUT_FILE)
+    result = fit_diffusion(time_ps, msd_A2)
+
+    output = pd.DataFrame([result])
+    OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
+    output.to_csv(OUTPUT_FILE, index=False)
+
+    print(f"Species:  {SPECIES_LABEL}")
+    print(f"Input:    {INPUT_FILE}")
+    print(f"Output:   {OUTPUT_FILE}")
+    print()
+    print(f"D = {result['D_m2_s']:.4e} m^2/s")
+    print(f"D = {result['D_1e8_m2_s']:.3f} x 10^-8 m^2/s")
 
 
 if __name__ == "__main__":
