@@ -1,7 +1,5 @@
 # Analysis scripts
 
-Suggested workflows:
-
 1. `pmf/apply_jacobian_corrections.py`  
    Converts WHAM output into corrected PMFs for two-body, three-body, or four-body geometries.
 
