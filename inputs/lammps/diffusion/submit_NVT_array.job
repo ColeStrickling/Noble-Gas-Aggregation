@@ -1,0 +1,38 @@
+#!/bin/bash
+#$ -M cstrick4@nd.edu
+#$ -m e
+#$ -pe mpi-24 24
+#$ -r n
+#$ -q long
+#$ -N kcl_2ar_NVT_MSD
+#$ -cwd
+#$ -j y
+#$ -t 1-8
+
+module load lammps
+
+T=1173
+RELAX=200000        # 200 ps
+PROD=20000000       # 20 ns
+
+# one seed per replica (extend list if you change -t range)
+seeds=(12345 22345 32345 42345 52345 62345 72345 82345)
+
+idx=$((SGE_TASK_ID - 1))
+SEED=${seeds[$idx]}
+
+RUN_DIR="run_${SGE_TASK_ID}_seed_${SEED}"
+mkdir -p ${RUN_DIR}
+cd ${RUN_DIR}
+
+# bring in inputs
+ln -sf ../NPT_${T}.data .
+ln -sf ../in.NVT.template in.NVT
+
+# run
+mpirun -np 24 lmp_mpi -in in.NVT \
+  -var T ${T} \
+  -var SEED ${SEED} \
+  -var RELAX ${RELAX} \
+  -var PROD ${PROD}
+
