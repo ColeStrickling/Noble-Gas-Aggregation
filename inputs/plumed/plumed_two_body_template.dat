@@ -1,0 +1,7 @@
+# Two-body PMF template
+# Replace atom indices with the two noble gas atoms.
+d: DISTANCE ATOMS=1,2
+
+restraint: RESTRAINT ARG=d AT=0.30 KAPPA=1000.0
+
+PRINT STRIDE=100 ARG=d,restraint.bias FILE=COLVAR

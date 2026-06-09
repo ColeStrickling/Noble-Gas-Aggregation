@@ -1,0 +1,9 @@
+# Four-body PMF template
+# Replace atom indices with noble gas atoms.
+# Atoms 1,2,3 define the restrained triangle; atom 4 approaches along the normal.
+
+# Add PLUMED definitions for triangle restraints, axial coordinate s, and cylindrical restraint.
+# Triangle side length: 0.33 nm for Ar or 0.45 nm for Xe.
+# Umbrella window centers: Ar = 0.3, 0.6, 0.9, 1.4 nm; Xe = 0.4, 0.6, 0.9, 1.4 nm.
+
+PRINT STRIDE=100 FILE=COLVAR

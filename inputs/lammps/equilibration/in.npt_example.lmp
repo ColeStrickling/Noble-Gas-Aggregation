@@ -1,0 +1,21 @@
+# LAMMPS NPT equilibration template for molten salt + noble gas
+units real
+atom_style full
+boundary p p p
+
+read_data data.example
+
+# Include system-specific force field settings here
+include ../../force_fields/lammps_include/UPDATE_SYSTEM.in.settings
+
+timestep 1.0
+thermo 1000
+thermo_style custom step temp press density pe ke etotal vol lx ly lz
+
+velocity all create 1173.0 12345 mom yes rot yes dist gaussian
+
+fix npt_all all npt temp 1173.0 1173.0 100.0 iso 1.0 1.0 1000.0
+run 3000000
+unfix npt_all
+
+write_data data.equilibrated

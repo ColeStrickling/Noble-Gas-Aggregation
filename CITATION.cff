@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+message: "If you use this repository, please cite the corresponding paper."
+title: "Repository for Noble Gas Aggregation and Dynamics in Molten Alkali Chloride Salts"
+authors:
+  - family-names: Strickling
+    given-names: Cole
+  - family-names: Zhang
+    given-names: Yong
+  - family-names: Gibson
+    given-names: Luke
+  - family-names: Bryantsev
+    given-names: Vyacheslav
+  - family-names: Maginn
+    given-names: Edward J.
+date-released: 2026-XX-XX
+repository-code: "https://github.com/MaginnGroup/UPDATE-REPO-NAME"
+abstract: "Analysis scripts, input examples, force-field parameters, and processed data for reproducing noble gas aggregation and diffusion calculations in molten LiCl and KCl."
+keywords:
+  - molten salts
+  - noble gases
+  - molecular dynamics
+  - umbrella sampling
+  - potential of mean force
+  - diffusion
+license: MIT

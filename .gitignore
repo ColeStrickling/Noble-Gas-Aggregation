@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# LAMMPS/PLUMED common large or machine-specific outputs
+log.lammps
+*.lammpstrj
+*.dcd
+*.xtc
+*.trr
+*.restart
+*.dump
+COLVAR
+HILLS
+bck.*
+slurm-*.out
+
+# Large compressed data
+*.tar
+*.tar.gz
+*.zip
+*.7z

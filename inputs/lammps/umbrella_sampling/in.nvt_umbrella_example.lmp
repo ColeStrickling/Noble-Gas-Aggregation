@@ -1,0 +1,17 @@
+# LAMMPS + PLUMED NVT umbrella sampling production template
+units real
+atom_style full
+boundary p p p
+
+read_data data.equilibrated
+include ../../force_fields/lammps_include/UPDATE_SYSTEM.in.settings
+
+timestep 1.0
+thermo 1000
+
+fix nvt_all all nvt temp 1173.0 1173.0 100.0
+fix plumed all plumed plumedfile plumed.dat outfile plumed.out
+
+dump traj all custom 1000 traj.lammpstrj id type xu yu zu
+
+run 6000000

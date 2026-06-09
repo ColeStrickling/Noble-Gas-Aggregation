@@ -1,0 +1,12 @@
+# Three-body PMF template
+# Replace atom indices with noble gas atoms.
+# Atoms 1 and 2 define the restrained dimer; atom 3 is the approaching gas atom.
+
+dimer: DISTANCE ATOMS=1,2
+# Add appropriate PLUMED definitions for the in-plane coordinate l.
+# Keep dimer separation fixed at 0.33 nm for Ar or 0.45 nm for Xe.
+
+dimer_restraint: RESTRAINT ARG=dimer AT=0.33 KAPPA=1000.0
+# l_restraint: RESTRAINT ARG=l AT=<window_center_nm> KAPPA=<force_constant>
+
+PRINT STRIDE=100 ARG=dimer,dimer_restraint.bias FILE=COLVAR

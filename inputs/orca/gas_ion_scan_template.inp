@@ -1,0 +1,10 @@
+! CCSD(T) 6-31G(d) TightSCF CPCM
+
+%cpcm
+  epsilon 1.2   # Use kappa/effective screening value being tested
+end
+
+* xyz 0 1
+Ar 0.000000 0.000000 0.000000
+K  0.000000 0.000000 3.000000
+*
