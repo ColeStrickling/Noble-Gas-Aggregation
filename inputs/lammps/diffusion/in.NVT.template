@@ -1,0 +1,97 @@
+# ------------------------------------------------------------
+# KCl + gas (Ar/Xe) NVT production, replica-ready
+# Designed for time-origin averaged MSD in post-processing
+# ------------------------------------------------------------
+
+# ---- runtime vars you pass from the job script ----
+# -var T 1173 -var SEED 12345 -var RELAX 200000 -var PROD 10000000
+# Optional vars:
+# -var THERMO 1000 -var DUMP_GAS_EVERY 1000 -var DUMP_ALL_EVERY 2000
+
+variable THERMO          equal 1000
+variable DUMP_GAS_EVERY  equal 1000     # steps (1 ps if dt=1 fs)
+variable DUMP_ALL_EVERY  equal 2000     # steps (2 ps if dt=1 fs)
+
+log log.NVT_T${T}_seed${SEED}.lammps
+
+units           real
+atom_style      full
+dimension       3
+boundary        p p p
+
+read_data       NPT_${T}.data
+
+# ---- force field (match NPT) ----
+pair_style      hybrid born/coul/long 9.0 lj/cut 9.0
+pair_modify     tail yes
+kspace_style    ewald 1.0e-5
+
+# For Ar (type 1 = gas), same as your NPT
+pair_coeff      1 1 lj/cut 0.2398296 3.405
+pair_coeff      1 3 born/coul/long 3.229 0.298 3.178 4834.231 3914.066
+pair_coeff      1 2 born/coul/long 8.081 0.332 3.029 2940.305 127.239
+pair_coeff      2 2 born/coul/long 3.649 0.342 3.170 1791.961 -3598.315
+pair_coeff      2 3 born/coul/long 4.864922507 0.337 3.048 690.877 -1050.708
+pair_coeff      3 3 born/coul/long 6.081153134 0.337 2.926 349.756 -345.438
+
+neighbor        3.0 bin
+neigh_modify    every 1 delay 0 check yes page 1000000 one 20000
+
+# ---- groups ----
+group gas type 1
+group cl  type 2
+group k  type 3
+group kcl union k cl
+
+timestep        1.0
+
+thermo          ${THERMO}
+thermo_style    custom step temp press density vol lx ly lz ke pe etotal enthalpy
+thermo_modify   flush yes
+
+# ---- unique replica velocities ----
+velocity        all create ${T} ${SEED} mom yes rot yes dist gaussian
+
+# Remove long-time drift (good for diffusion analysis)
+fix             mom all momentum 1000 linear 1 1 1
+
+# Periodic restarts
+restart         200000 restart_NVT_T${T}_seed${SEED}.*
+
+# ------------------------------------------------------------
+# Equil + Production
+# Thermostat the melt; integrate gas with NVE for tracer diffusion
+# ------------------------------------------------------------
+
+# Relax
+reset_timestep  0
+fix             nvt_melt kcl nvt temp ${T} ${T} 1000.0
+fix             nve_gas  gas  nve
+run             ${RELAX}
+unfix           nvt_melt
+unfix           nve_gas
+
+# Production
+reset_timestep  0
+
+# ------------------------------------------------------------
+# DUMPS for time-origin MSD analysis
+# Use UNWRAPPED coords (xu yu zu) so MSD is correct under PBC.
+# 'append yes' prevents overwriting if you extend the run later.
+# ------------------------------------------------------------
+
+# 1) Gas-only: frequent (good stats for 2 atoms)
+dump            dgas gas custom ${DUMP_GAS_EVERY} gas_traj.lammpstrj id type xu yu zu
+dump_modify     dgas sort id append yes
+
+# 2) All-atoms: less frequent (for Li/Cl MSD + also gas if you want)
+dump            dall all custom ${DUMP_ALL_EVERY} all_traj.lammpstrj id type xu yu zu
+dump_modify     dall sort id append yes
+
+fix             nvt_melt kcl nvt temp ${T} ${T} 1000.0
+fix             nve_gas  gas  nve
+run             ${PROD}
+
+write_data      NVT_T${T}_seed${SEED}.data
+write_restart   NVT_T${T}_seed${SEED}.restart
+

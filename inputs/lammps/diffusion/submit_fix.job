@@ -1,0 +1,90 @@
+#!/bin/bash
+#$ -M cstrick4@nd.edu
+#$ -m e
+#$ -pe mpi-24 24
+#$ -r n
+#$ -q long
+#$ -N kcl_2ar_NVT_rerun2
+#$ -cwd
+#$ -j y
+#$ -t 1-2
+
+module load lammps
+
+# -----------------------
+# SETTINGS (same as before)
+# -----------------------
+T=1173
+RELAX=200000        # 200 ps
+PROD=20000000       # 20 ns
+
+# -----------------------
+# EDIT THIS SECTION
+# Put the TWO bad replicas you want to replace.
+#
+# - RUN_ID is the number in run_<RUN_ID>_seed_<DIR_SEED>
+# - DIR_SEED is the seed in the folder name you want to overwrite
+# - NEW_SEED is the new random seed you will pass to LAMMPS
+#
+# Example bad folder: run_5_seed_52345  -> RUN_ID=5, DIR_SEED=52345
+# -----------------------
+bad_run_ids=(1 2)
+dir_seeds=(12345 22345)
+new_seeds=(39955 55599)
+
+# -----------------------
+# Pick which one this task is
+# -----------------------
+idx=$((SGE_TASK_ID - 1))
+RUN_ID=${bad_run_ids[$idx]}
+DIR_SEED=${dir_seeds[$idx]}
+SEED=${new_seeds[$idx]}
+
+RUN_DIR="run_${RUN_ID}_seed_${DIR_SEED}"
+mkdir -p "${RUN_DIR}"
+cd "${RUN_DIR}"
+
+echo "=================================================="
+echo "Rerunning ${RUN_DIR} with NEW seed = ${SEED}"
+echo "Host: $(hostname)"
+echo "CWD : $(pwd)"
+echo "Start: $(date)"
+echo "=================================================="
+
+# -----------------------
+# OPTIONAL BACKUP (recommended)
+# This moves old outputs out of the way so the rerun is clean,
+# but still keeps them in case you want to compare.
+#
+# If you want hard overwrite with no backup, set DO_BACKUP=0
+# -----------------------
+DO_BACKUP=1
+if [[ "${DO_BACKUP}" -eq 1 ]]; then
+  stamp=$(date +%Y%m%d_%H%M%S)
+  backup_dir="_old_${stamp}"
+  mkdir -p "${backup_dir}"
+
+  # Move common outputs if they exist (ignore errors)
+  mv -f log.lammps* *.lammpstrj* *.dump* msd*.dat restart* *.restart* *.data* 2>/dev/null "${backup_dir}/" || true
+fi
+
+# -----------------------
+# Bring in inputs (refresh symlinks)
+# -----------------------
+rm -f "NPT_${T}.data" in.NVT
+ln -sf "../NPT_${T}.data" .
+ln -sf "../in.NVT.template" in.NVT
+
+# -----------------------
+# Run LAMMPS
+# -----------------------
+mpirun -np "${NSLOTS}" lmp_mpi -in in.NVT \
+  -var T "${T}" \
+  -var SEED "${SEED}" \
+  -var RELAX "${RELAX}" \
+  -var PROD "${PROD}"
+
+echo "=================================================="
+echo "Done: $(date)"
+echo "=================================================="
+
