@@ -1,9 +1,50 @@
 # Force-field parameters
 
-This directory contains force-field parameters used in the manuscript.
+This directory contains the force-field parameters used for the classical molecular dynamics simulations in the manuscript.
 
-Important notes:
+The simulations used a rigid ion model (RIM) for molten LiCl and KCl. Salt--salt and salt--gas interactions were described using the functional form
 
-- Values in `rim_parameters_manuscript_units.csv` are stored in the units reported in the manuscript.
-- Convert energy units as needed for the chosen LAMMPS `units` setting.
+$$
+U_{\mathrm{RIM}} =
+\sum_{i<j}
+\left[
+\frac{q_i q_j}{4 \pi \epsilon_0 r_{ij}}
++
+A_{ij}\exp\left(\frac{\sigma_{ij}-r_{ij}}{\rho_{ij}}\right)
+-----------------------------------------------------------
 
+## \frac{C_{ij}}{r_{ij}^{6}}
+
+\frac{D_{ij}}{r_{ij}^{8}}
+\right],
+$$
+
+where (r_{ij}) is the distance between atoms or ions (i) and (j), (q_i) and (q_j) are the charges, (A_{ij}), (\sigma_{ij}), and (\rho_{ij}) define the short-range repulsive interaction, and (C_{ij}) and (D_{ij}) define the dispersion terms.
+
+Gas--gas interactions were described using a Lennard-Jones potential,
+
+$$
+U_{\mathrm{LJ}}(r_{ij}) =
+4\epsilon_{ij}
+\left[
+\left(\frac{\sigma_{ij}}{r_{ij}}\right)^{12}
+--------------------------------------------
+
+\left(\frac{\sigma_{ij}}{r_{ij}}\right)^6
+\right],
+$$
+
+where (\sigma_{ij}) is the Lennard-Jones size parameter and (\epsilon_{ij}) is the well depth.
+
+## Files
+
+* `rim_parameters_manuscript_units.csv` contains the RIM parameters reported in the manuscript for LiCl, KCl, and the fitted salt--gas interactions.
+* `gas_lj_parameters_manuscript_units.csv` contains the Lennard-Jones parameters used for Ar--Ar and Xe--Xe interactions.
+* `lammps_include/` contains example LAMMPS include files or converted parameter files used to run the classical MD simulations.
+
+## Important notes
+
+* Values in `rim_parameters_manuscript_units.csv` are stored in the units reported in the manuscript.
+* Energy units should be converted as needed for the selected LAMMPS `units` setting.
+* The CSV files are intended to provide a clear record of the manuscript parameters. The files in `lammps_include/` should be used as the direct input examples for reproducing the LAMMPS simulations.
+* The fitted salt--gas parameters are salt-specific. The LiCl parameters should be used with the LiCl RIM model, and the KCl parameters should be used with the KCl RIM model.
