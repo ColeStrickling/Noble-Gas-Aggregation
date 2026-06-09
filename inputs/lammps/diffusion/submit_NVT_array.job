@@ -1,11 +1,7 @@
 #!/bin/bash
-#$ -M cstrick4@nd.edu
-#$ -m e
+
 #$ -pe mpi-24 24
-#$ -r n
-#$ -q long
 #$ -N kcl_2ar_NVT_MSD
-#$ -cwd
 #$ -j y
 #$ -t 1-8
 
