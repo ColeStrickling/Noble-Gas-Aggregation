@@ -5,17 +5,7 @@ This directory contains the force-field parameters used for the classical molecu
 The simulations used a rigid ion model (RIM) for molten LiCl and KCl. Salt--salt and salt--gas interactions were described using the following functional form:
 
 ```math
-U_{\mathrm{RIM}} =
-\sum_{i<j}
-\left[
-\frac{q_i q_j}{4 \pi \epsilon_0 r_{ij}}
-+
-A_{ij}\exp\left(\frac{\sigma_{ij}-r_{ij}}{\rho_{ij}}\right)
--
-\frac{C_{ij}}{r_{ij}^{6}}
--
-\frac{D_{ij}}{r_{ij}^{8}}
-\right]
+U_{\mathrm{RIM}} = \sum_{i \lt j} \left[ \frac{q_i q_j}{4 \pi \epsilon_0 r_{ij}} + A_{ij}\exp\left(\frac{\sigma_{ij}-r_{ij}}{\rho_{ij}}\right) - \frac{C_{ij}}{r_{ij}^{6}} - \frac{D_{ij}}{r_{ij}^{8}} \right]
 ```
 
 where `r_ij` is the distance between atoms or ions `i` and `j`, `q_i` and `q_j` are the charges, `A_ij`, `sigma_ij`, and `rho_ij` define the short-range repulsive interaction, and `C_ij` and `D_ij` define the dispersion terms.
