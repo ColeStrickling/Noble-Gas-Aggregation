@@ -1,0 +1,19 @@
+#
+# K_ion_Ar
+#
+
+! CCSD(T) 6-31G(d) CPCM 
+
+%cpcm
+  epsilon 1.2
+end
+
+%scf
+  maxiter 500
+end
+
+* xyz 1 1
+K	0.0 0.0 variable
+Ar 	0.0 0.0 0.0
+#Li	0.0 0.0 variable
+*

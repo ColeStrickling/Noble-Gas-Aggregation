@@ -1,0 +1,20 @@
+#!/bin/bash
+
+#$ -M cstrick4@nd.edu
+#$ -m abe
+#$ -N K_Ar_eps_1_2
+
+module load orca 
+
+for i in {1..90} 
+do
+	j=`expr "scale=5; ($i / 10) + 6.05"| bc`
+	echo $j
+	cp K_ion_Ar.inp temp.inp 
+	sed "s/variable/$j/g" temp.inp > temp_2.inp
+	rm -f *.gbw *.tmp *.prop *.wfn *.hess
+	orca temp_2.inp > temp_2.out 
+	grep 'FINAL' temp_2.out >> E_out_K_ion_Ar_eps_1_2.txt
+	grep '^K' temp_2.inp >> E_out_K_ion_Ar_eps_1_2.txt
+	rm temp_2*
+done
