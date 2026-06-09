@@ -1,0 +1,4 @@
+# plumed.dat - PLUMED input file
+DISTANCE ATOMS=1,2 LABEL=d
+RESTRAINT ARG=d AT=0.6 KAPPA=500 LABEL=myrestraint
+PRINT ARG=d,myrestraint.bias FILE=out_5 STRIDE=100
