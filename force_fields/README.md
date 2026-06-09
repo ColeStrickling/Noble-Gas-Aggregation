@@ -2,39 +2,37 @@
 
 This directory contains the force-field parameters used for the classical molecular dynamics simulations in the manuscript.
 
-The simulations used a rigid ion model (RIM) for molten LiCl and KCl. Salt--salt and salt--gas interactions were described using the functional form
+The simulations used a rigid ion model (RIM) for molten LiCl and KCl. Salt--salt and salt--gas interactions were described using the following functional form:
 
-$$
+```math
 U_{\mathrm{RIM}} =
 \sum_{i<j}
 \left[
 \frac{q_i q_j}{4 \pi \epsilon_0 r_{ij}}
 +
 A_{ij}\exp\left(\frac{\sigma_{ij}-r_{ij}}{\rho_{ij}}\right)
------------------------------------------------------------
-
-## \frac{C_{ij}}{r_{ij}^{6}}
-
+-
+\frac{C_{ij}}{r_{ij}^{6}}
+-
 \frac{D_{ij}}{r_{ij}^{8}}
-\right],
-$$
+\right]
+```
 
-where (r_{ij}) is the distance between atoms or ions (i) and (j), (q_i) and (q_j) are the charges, (A_{ij}), (\sigma_{ij}), and (\rho_{ij}) define the short-range repulsive interaction, and (C_{ij}) and (D_{ij}) define the dispersion terms.
+where `r_ij` is the distance between atoms or ions `i` and `j`, `q_i` and `q_j` are the charges, `A_ij`, `sigma_ij`, and `rho_ij` define the short-range repulsive interaction, and `C_ij` and `D_ij` define the dispersion terms.
 
-Gas--gas interactions were described using a Lennard-Jones potential,
+Gas--gas interactions were described using a Lennard-Jones potential:
 
-$$
+```math
 U_{\mathrm{LJ}}(r_{ij}) =
 4\epsilon_{ij}
 \left[
 \left(\frac{\sigma_{ij}}{r_{ij}}\right)^{12}
---------------------------------------------
-
+-
 \left(\frac{\sigma_{ij}}{r_{ij}}\right)^6
-\right],
-$$
+\right]
+```
 
-where (\sigma_{ij}) is the Lennard-Jones size parameter and (\epsilon_{ij}) is the well depth.
+where `sigma_ij` is the Lennard-Jones size parameter and `epsilon_ij` is the well depth.
 
 ## Files
 
