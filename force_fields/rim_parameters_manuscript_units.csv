@@ -1,15 +1,15 @@
-parameter_set,system,pair,A_kJ_mol,sigma_A,rho_A,C_kJ_mol_A6,D_kJ_mol_A8,source
-salt_salt,KCl,+ +,25.443,2.926,0.337,1463.379,1445.313,"Manuscript Table 1 / Tosi-Fumi, Mayer"
-salt_salt,KCl,+ -,20.355,3.048,0.337,2890.629,4396.162,"Manuscript Table 1 / Tosi-Fumi, Mayer"
-salt_salt,KCl,- -,15.267,3.17,0.337,7497.565,15055.35,"Manuscript Table 1 / Tosi-Fumi, Mayer"
-salt_salt,LiCl,+ +,40.71,1.632,0.342,4.397,1.807,"Manuscript Table 1 / Tosi-Fumi, Mayer"
-salt_salt,LiCl,+ -,27.987,2.401,0.342,120.444,144.532,"Manuscript Table 1 / Tosi-Fumi, Mayer"
-salt_salt,LiCl,- -,15.267,3.17,0.342,6684.576,13429.372,"Manuscript Table 1 / Tosi-Fumi, Mayer"
-salt_gas,LiCl,Ar-Li+,41.003,2.31,0.258,9235.778,-5806.781,Manuscript Table 2
-salt_gas,LiCl,Ar-Cl-,33.593,3.042,0.343,10326.936,-6147.593,Manuscript Table 2
-salt_gas,LiCl,Xe-Li+,28.87,2.971,0.312,38374.648,-31365.138,Manuscript Table 2
-salt_gas,LiCl,Xe-Cl-,17.0,3.592,0.352,13085.514,38923.664,Manuscript Table 2
-salt_gas,KCl,Ar-K+,13.51,3.178,0.298,20226.423,-16376.452,Manuscript Table 2
-salt_gas,KCl,Ar-Cl-,33.811,3.029,0.332,12302.236,-532.368,Manuscript Table 2
-salt_gas,KCl,Xe-K+,13.975,3.471,0.346,38736.581,-14871.133,Manuscript Table 2
-salt_gas,KCl,Xe-Cl-,17.213,3.582,0.349,16567.611,38105.466,Manuscript Table 2
+parameter_set,system,pair,A_kJ_mol,sigma_A,rho_A,C_kJ_mol_A6,D_kJ_mol_A8
+salt_salt,KCl,+ +,25.443,2.926,0.337,1463.379,1445.313
+salt_salt,KCl,+ -,20.355,3.048,0.337,2890.629,4396.162
+salt_salt,KCl,- -,15.267,3.17,0.337,7497.565,15055.35
+salt_salt,LiCl,+ +,40.71,1.632,0.342,4.397,1.807
+salt_salt,LiCl,+ -,27.987,2.401,0.342,120.444,144.532
+salt_salt,LiCl,- -,15.267,3.17,0.342,6684.576,13429.372
+salt_gas,LiCl,Ar-Li+,41.003,2.31,0.258,9235.778,-5806.781
+salt_gas,LiCl,Ar-Cl-,33.593,3.042,0.343,10326.936,-6147.593
+salt_gas,LiCl,Xe-Li+,28.87,2.971,0.312,38374.648,-31365.138
+salt_gas,LiCl,Xe-Cl-,17.0,3.592,0.352,13085.514,38923.664
+salt_gas,KCl,Ar-K+,13.51,3.178,0.298,20226.423,-16376.452
+salt_gas,KCl,Ar-Cl-,33.811,3.029,0.332,12302.236,-532.368
+salt_gas,KCl,Xe-K+,13.975,3.471,0.346,38736.581,-14871.133
+salt_gas,KCl,Xe-Cl-,17.213,3.582,0.349,16567.611,38105.466
