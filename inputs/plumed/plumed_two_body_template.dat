@@ -1,7 +1,4 @@
-# Two-body PMF template
-# Replace atom indices with the two noble gas atoms.
-d: DISTANCE ATOMS=1,2
-
-restraint: RESTRAINT ARG=d AT=0.30 KAPPA=1000.0
-
-PRINT STRIDE=100 ARG=d,restraint.bias FILE=COLVAR
+# plumed.dat - PLUMED input file
+DISTANCE ATOMS=1,2 LABEL=d
+RESTRAINT ARG=d AT=0.6 KAPPA=500 LABEL=myrestraint
+PRINT ARG=d,myrestraint.bias FILE=out_6 STRIDE=100
