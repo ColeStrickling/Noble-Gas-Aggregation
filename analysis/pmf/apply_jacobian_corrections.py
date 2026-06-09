@@ -1,58 +1,154 @@
 #!/usr/bin/env python3
-"""Apply geometric/Jacobian corrections to WHAM free-energy output.
+"""
+Example PMF post-processing script.
 
-Input format: whitespace-delimited file with coordinate in column 1 and free energy in column 2.
-Default units are kJ/mol, using R = 0.008314462618 kJ/mol/K.
+This script reads one WHAM output file, applies the appropriate geometric
+Jacobian correction, shifts the dissociated tail to zero, and writes a processed
+PMF file.
+
+The WHAM input file is expected to have columns:
+
+    coordinate_nm   free_kcal_mol   free_err_kcal_mol   prob   prob_err
+
+Lines beginning with "#" are ignored.
+
+Edit the USER SETTINGS section below for a different PMF.
 """
 
-import argparse
+from pathlib import Path
+
 import numpy as np
+import pandas as pd
 
 
-R_KJ_MOL_K = 0.008314462618
+# =============================================================================
+# USER SETTINGS
+# =============================================================================
+
+INPUT_FILE = Path("examples/pmf/wham_output_example.dat")
+OUTPUT_FILE = Path("results/pmf/processed_pmf_example.csv")
+
+# Choose one: "two_body", "three_body", or "four_body"
+GEOMETRY = "two_body"
+
+TEMPERATURE_K = 1173.0
+
+# PMF reference: subtract the average PMF over this distance range.
+TAIL_MIN_A = 10.0
+TAIL_MAX_A = 15.0
+
+# =============================================================================
+# CONSTANTS
+# =============================================================================
+
+R_KCAL_MOL_K = 0.00198720425864083
+KCAL_TO_KJ = 4.184
+EPS = 1.0e-12
+
+JACOBIAN_POWER = {
+    "two_body": 2,    # W(r) = F(r) + 2RT ln(r)
+    "three_body": 1,  # W(l) = F(l) +  RT ln(l)
+    "four_body": 0,   # W(s) = F(s)
+}
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--input", required=True, help="WHAM output file")
-    parser.add_argument("--output", required=True, help="Corrected PMF output file")
-    parser.add_argument("--geometry", required=True, choices=["two_body", "three_body", "four_body"])
-    parser.add_argument("--temperature", type=float, default=1173.0)
-    parser.add_argument("--coordinate-column", type=int, default=0)
-    parser.add_argument("--free-energy-column", type=int, default=1)
-    parser.add_argument("--shift-min", type=float, default=None, help="Minimum coordinate for zero-shift region")
-    parser.add_argument("--shift-max", type=float, default=None, help="Maximum coordinate for zero-shift region")
-    args = parser.parse_args()
+def read_wham_file(path):
+    """Read WHAM output."""
+    columns = [
+        "coordinate_nm",
+        "free_kcal_mol",
+        "free_err_kcal_mol",
+        "prob",
+        "prob_err",
+    ]
 
-    data = np.loadtxt(args.input, comments=["#", "@"])
-    q = data[:, args.coordinate_column]
-    F = data[:, args.free_energy_column]
+    data = pd.read_csv(
+        path,
+        sep=r"\s+",
+        comment="#",
+        names=columns,
+        engine="python",
+    )
 
-    if np.any(q <= 0) and args.geometry in {"two_body", "three_body"}:
-        raise ValueError("Coordinates must be positive for logarithmic Jacobian corrections.")
+    if data.empty:
+        raise ValueError(f"No data were read from {path}")
 
-    kBT = R_KJ_MOL_K * args.temperature
+    return data
 
-    if args.geometry == "two_body":
-        W = F + 2.0 * kBT * np.log(q)
-    elif args.geometry == "three_body":
-        W = F + kBT * np.log(q)
+
+def apply_jacobian_correction(coordinate_nm, free_kcal_mol, geometry):
+    """Apply the geometry-specific Jacobian correction."""
+    if geometry not in JACOBIAN_POWER:
+        raise ValueError(
+            f"Unknown GEOMETRY = {geometry}. "
+            "Use 'two_body', 'three_body', or 'four_body'."
+        )
+
+    power = JACOBIAN_POWER[geometry]
+
+    if power == 0:
+        return free_kcal_mol.copy()
+
+    coordinate_nm = np.clip(coordinate_nm, EPS, None)
+    correction = power * R_KCAL_MOL_K * TEMPERATURE_K * np.log(coordinate_nm)
+
+    return free_kcal_mol + correction
+
+
+def shift_tail_to_zero(coordinate_A, pmf_kcal_mol):
+    """Shift PMF so the average value in the tail window is zero."""
+    tail_mask = (coordinate_A >= TAIL_MIN_A) & (coordinate_A <= TAIL_MAX_A)
+
+    if np.any(tail_mask):
+        tail_average = np.mean(pmf_kcal_mol[tail_mask])
     else:
-        W = F.copy()
+        # Fallback if the selected tail window is outside the data range.
+        n_tail = min(20, len(pmf_kcal_mol))
+        tail_average = np.mean(pmf_kcal_mol[-n_tail:])
 
-    if args.shift_min is not None and args.shift_max is not None:
-        mask = (q >= args.shift_min) & (q <= args.shift_max)
-        if not np.any(mask):
-            raise ValueError("No points found in requested shift range.")
-        shift = np.nanmean(W[mask])
-    else:
-        shift = W[-1]
+    return pmf_kcal_mol - tail_average
 
-    W = W - shift
 
-    header = "coordinate corrected_pmf_kJ_mol raw_free_energy_kJ_mol"
-    np.savetxt(args.output, np.column_stack([q, W, F]), header=header)
+def main():
+    data = read_wham_file(INPUT_FILE)
+
+    coordinate_nm = data["coordinate_nm"].to_numpy(float)
+    coordinate_A = 10.0 * coordinate_nm
+    free_kcal_mol = data["free_kcal_mol"].to_numpy(float)
+
+    pmf_kcal_mol = apply_jacobian_correction(
+        coordinate_nm=coordinate_nm,
+        free_kcal_mol=free_kcal_mol,
+        geometry=GEOMETRY,
+    )
+
+    pmf_kcal_mol = shift_tail_to_zero(
+        coordinate_A=coordinate_A,
+        pmf_kcal_mol=pmf_kcal_mol,
+    )
+
+    output = pd.DataFrame({
+        "coordinate_nm": coordinate_nm,
+        "coordinate_A": coordinate_A,
+        "wham_free_kcal_mol": free_kcal_mol,
+        "pmf_kcal_mol": pmf_kcal_mol,
+        "pmf_kJ_mol": pmf_kcal_mol * KCAL_TO_KJ,
+        "free_err_kcal_mol": data["free_err_kcal_mol"].to_numpy(float),
+        "prob": data["prob"].to_numpy(float),
+        "prob_err": data["prob_err"].to_numpy(float),
+    })
+
+    OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
+    output.to_csv(OUTPUT_FILE, index=False)
+
+    print(f"Geometry: {GEOMETRY}")
+    print(f"Input:    {INPUT_FILE}")
+    print(f"Output:   {OUTPUT_FILE}")
+    print(f"Rows:     {len(output)}")
+    print()
+    print(output.head())
 
 
 if __name__ == "__main__":
     main()
+
