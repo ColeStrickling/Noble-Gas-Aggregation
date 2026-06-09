@@ -26,13 +26,11 @@ where `sigma_ij` is the Lennard-Jones size parameter and `epsilon_ij` is the wel
 
 ## Files
 
-* `rim_parameters_manuscript_units.csv` contains the RIM parameters reported in the manuscript for LiCl, KCl, and the fitted salt--gas interactions.
-* `gas_lj_parameters_manuscript_units.csv` contains the Lennard-Jones parameters used for Ar--Ar and Xe--Xe interactions.
-* `lammps_include/` contains example LAMMPS include files or converted parameter files used to run the classical MD simulations.
+* `rim_parameters.csv` contains the RIM parameters reported in the manuscript for LiCl, KCl, and the fitted salt--gas interactions.
+* `gas_lj_parameters.csv` contains the Lennard-Jones parameters used for Ar--Ar and Xe--Xe interactions.
 
 ## Important notes
 
-* Values in `rim_parameters_manuscript_units.csv` are stored in the units reported in the manuscript.
+* Values in `rim_parameters.csv` are stored in the units reported in the manuscript.
 * Energy units should be converted as needed for the selected LAMMPS `units` setting.
-* The CSV files are intended to provide a clear record of the manuscript parameters. The files in `lammps_include/` should be used as the direct input examples for reproducing the LAMMPS simulations.
 * The fitted salt--gas parameters are salt-specific. The LiCl parameters should be used with the LiCl RIM model, and the KCl parameters should be used with the KCl RIM model.
