@@ -38,7 +38,7 @@ from scipy.optimize import minimize
 # =============================================================================
 
 # Example expected location. Replace with the real file you want to fit.
-INPUT_FILE = Path("examples/fitting/E_out_K_ion_Ar_eps_1_8.txt")
+INPUT_FILE = Path("examples/fitting/E_out_K_ion_Ar_eps_1_2.txt")
 
 # Output files.
 OUTPUT_PARAMETERS = Path("results/fitting/fitted_rim_parameters.csv")
