@@ -57,9 +57,9 @@ ENERGY_COLUMN_INDEX = 4
 
 # Energy correction/reference in Hartree.
 # In the notebook example:
-#     E_relative = (E_orca + 1125.938526) * 627.503
+#     E_relative = (E_orca + 1125.916253032601) * 627.503
 #     E_relative -= E_relative[-1]
-REFERENCE_ENERGY_HARTREE = 1125.938526
+REFERENCE_ENERGY_HARTREE = 1125.916253032601
 
 # Distance grid settings.
 # This matches the notebook pattern:
