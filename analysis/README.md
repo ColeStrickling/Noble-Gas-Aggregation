@@ -9,5 +9,5 @@
 3. `diffusion/msd_average_types.py`
    Compute time-origin averaged MSD(t) for each atom type across multiple replicas.
 
-4. `orca_fitting/fit_rim_potential.py`
+5. `orca_fitting/fit_rim_potential.py`
    Fit a RIM-style salt--gas interaction potential to an ORCA energy scan.
