@@ -8,3 +8,6 @@
 
 3. `diffusion/msd_average_types.py`
    Compute time-origin averaged MSD(t) for each atom type across multiple replicas.
+
+4. `orca_fitting/fit_rim_potential.py`
+   
